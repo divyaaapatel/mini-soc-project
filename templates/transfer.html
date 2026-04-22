@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Secure File Transfer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>🛡️ Mini SOC</h2>
+        <a href="/">📊 Dashboard</a>
+        <a href="/logs">📋 Logs</a>
+        <a href="/alerts">🚨 Alerts</a>
+        <a href="/scanner">🔍 Scanner</a>
+        <a href="/transfer">🔐 Transfer</a>
+    </div>
+
+    <div class="main">
+        <h1>🔐 Secure File Transfer</h1>
+
+        <!-- Encrypt Section -->
+        <div class="feed" style="margin-bottom: 25px;">
+            <h2>🔒 Encrypt a File</h2>
+            <div class="scanner-box" style="margin-top: 15px;">
+                <input type="file" id="encrypt-file" />
+                <button onclick="encryptFile()">Encrypt</button>
+            </div>
+            <div id="encrypt-result"></div>
+        </div>
+
+        <!-- Decrypt Section -->
+        <div class="feed">
+            <h2>🔓 Decrypt a File</h2>
+            <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px;">
+                <input type="file" id="decrypt-file" />
+                <input type="text" id="decrypt-key" 
+                    placeholder="Paste your encryption key here"
+                    style="padding:12px; border-radius:8px; border:1px solid #30363d; 
+                           background:#161b22; color:#c9d1d9; font-size:14px;" />
+                <button onclick="decryptFile()" 
+                    style="width:150px; padding:12px; background:#3fb950; color:#0d1117;
+                           border:none; border-radius:8px; font-weight:bold; cursor:pointer;">
+                    Decrypt
+                </button>
+            </div>
+            <div id="decrypt-result"></div>
+        </div>
+    </div>
+
+    <script>
+    function encryptFile() {
+    const file = document.getElementById('encrypt-file').files[0];
+    if (!file) { alert('Please select a file!'); return; }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    document.getElementById('encrypt-result').innerHTML = 
+        '<p style="color:#58a6ff; margin-top:10px;">Encrypting... ⏳</p>';
+
+    fetch('/api/encrypt', { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById('encrypt-result').innerHTML = 
+                    `<p style="color:#f85149; margin-top:10px;">${data.error}</p>`;
+                return;
+            }
+            document.getElementById('encrypt-result').innerHTML = `
+                <div style="margin-top:15px; padding:15px; background:#21262d; 
+                            border-radius:8px; border:1px solid #30363d;">
+                    <p style="color:#3fb950;">${data.status}</p>
+                    <p style="margin-top:10px; color:#8b949e;">🔑 Your Key (save this!):</p>
+                    <code style="color:#e3b341; word-break:break-all;">${data.key}</code>
+                    <br/><br/>
+                    <button onclick="downloadEncrypted()"
+                        style="padding:10px 20px; background:#58a6ff; color:#0d1117;
+                               border:none; border-radius:8px; font-weight:bold; cursor:pointer;">
+                        ⬇️ Download Encrypted File
+                    </button>
+                </div>`;
+        });
+}
+
+function downloadEncrypted() {
+    fetch('/api/download_encrypted')
+        .then(res => res.blob())
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'encrypted_file.enc';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        });
+}
+
+    function decryptFile() {
+    const file = document.getElementById('decrypt-file').files[0];
+    const key = document.getElementById('decrypt-key').value;
+    if (!file || !key) { alert('Please select file and enter key!'); return; }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('key', key);
+
+    document.getElementById('decrypt-result').innerHTML = 
+        '<p style="color:#58a6ff; margin-top:10px;">Decrypting... ⏳</p>';
+
+    fetch('/api/decrypt', { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('decrypt-result').innerHTML = `
+                <div style="margin-top:15px; padding:15px; background:#21262d; 
+                            border-radius:8px; border:1px solid #30363d;">
+                    <p style="color:${data.error ? '#f85149' : '#3fb950'};">
+                        ${data.error || data.status}
+                    </p>
+                    ${data.preview ? `
+                        <p style="margin-top:10px; color:#8b949e;">
+                            Preview: <code>${data.preview}</code>
+                        </p>
+                        <br/>
+                        <button onclick="downloadDecrypted()"
+                            style="padding:10px 20px; background:#3fb950; color:#0d1117;
+                                   border:none; border-radius:8px; font-weight:bold; cursor:pointer;">
+                            ⬇️ Download Decrypted File
+                        </button>` : ''}
+                </div>`;
+        });
+}
+
+function downloadDecrypted() {
+    fetch('/api/download_decrypted')
+        .then(res => res.blob())
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'decrypted_file';
+            a.click();
+        });
+}
+</script>
+
+</body>
+</html>

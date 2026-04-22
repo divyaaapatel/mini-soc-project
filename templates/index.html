@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini SOC Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>🛡️ Mini SOC</h2>
+        <a href="/">📊 Dashboard</a>
+        <a href="/logs">📋 Logs</a>
+        <a href="/alerts">🚨 Alerts</a>
+        <a href="/scanner">🔍 Scanner</a>
+        <a href="/transfer">🔒 Transfer</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main">
+        <h1>Security Operations Center</h1>
+
+        <!-- 1. Stats Cards -->
+        <div class="cards">
+            <div class="card">
+                <h3>Total Packets</h3>
+                <p id="total_packets">0</p>
+            </div>
+            <div class="card threat">
+                <h3>Threats Detected</h3>
+                <p id="threats_detected">0</p>
+            </div>
+            <div class="card alert">
+                <h3>Active Alerts</h3>
+                <p id="alerts">0</p>
+            </div>
+            <div class="card status">
+                <h3>Status</h3>
+                <p id="status">Monitoring...</p>
+            </div>
+        </div>
+
+        <!-- 2. Website Monitor -->
+        <div class="feed" style="margin-top: 25px;">
+            <h2>🌐 Live Website Monitor</h2>
+            <div class="scanner-box" style="margin-top: 15px;">
+                <input type="text" id="website-url"
+                    placeholder="Enter website URL e.g. http://example.com" />
+                <button onclick="loadWebsite()">Analyze Site</button>
+            </div>
+
+            <!-- iframe UPAR -->
+            <div id="iframe-container" style="display:none; margin-top:15px;">
+                <h3 style="color:#8b949e; margin-bottom:10px;">🖥️ Live Preview</h3>
+                <iframe id="website-frame"
+                    style="width:100%; height:450px; border:1px solid #30363d;
+                           border-radius:8px; background:#fff;"
+                    src=""
+                    title="Website Preview">
+                </iframe>
+            </div>
+
+            <!-- Threat Analysis NICHE -->
+            <div id="site-status" style="margin-top:20px;"></div>
+        </div>
+
+        <!-- 3. Live Threat Feed -->
+        <div class="feed" style="margin-top: 25px;">
+            <h2>🔴 Live Threat Feed</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Source IP</th>
+                        <th>Type</th>
+                        <th>Severity</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="threat-feed">
+                    <tr>
+                        <td colspan="5">No threats detected yet...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

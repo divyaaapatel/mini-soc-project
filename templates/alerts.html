@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Alerts</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>🛡️ Mini SOC</h2>
+        <a href="/">📊 Dashboard</a>
+        <a href="/logs">📋 Logs</a>
+        <a href="/alerts">🚨 Alerts</a>
+        <a href="/scanner">🔍 Scanner</a>
+        <a href="/transfer">🔒 Transfer</a>
+    </div>
+
+    <div class="main">
+        <h1>🚨 Active Alerts</h1>
+
+        <div class="feed">
+            <h2>⚠️ Security Alerts</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Source IP</th>
+                        <th>Alert Type</th>
+                        <th>Severity</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="alert-feed">
+                    <tr><td colspan="5">Loading alerts...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function fetchAlerts() {
+            fetch('/api/alerts')
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.getElementById('alert-feed');
+                    tbody.innerHTML = '';
+                    data.alerts.forEach(alert => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${alert.time}</td>
+                                <td>${alert.ip}</td>
+                                <td>${alert.type}</td>
+                                <td>${alert.severity}</td>
+                                <td>${alert.action}</td>
+                            </tr>`;
+                    });
+                });
+        }
+        fetchAlerts();
+        setInterval(fetchAlerts, 5000);
+    </script>
+
+</body>
+</html>

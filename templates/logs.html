@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Logs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>🛡️ Mini SOC</h2>
+        <a href="/">📊 Dashboard</a>
+        <a href="/logs">📋 Logs</a>
+        <a href="/alerts">🚨 Alerts</a>
+        <a href="/scanner">🔍 Scanner</a>
+        <a href="/transfer">🔒 Transfer</a>
+    </div>
+
+    <div class="main">
+        <h1>📋 Log Monitor</h1>
+
+        <div class="feed">
+            <h2>📁 System & Network Logs</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Source IP</th>
+                        <th>Event</th>
+                        <th>Level</th>
+                    </tr>
+                </thead>
+                <tbody id="log-feed">
+                    <tr><td colspan="4">Loading logs...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function fetchLogs() {
+            fetch('/api/logs')
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.getElementById('log-feed');
+                    tbody.innerHTML = '';
+                    data.logs.forEach(log => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${log.time}</td>
+                                <td>${log.ip}</td>
+                                <td>${log.event}</td>
+                                <td>${log.level}</td>
+                            </tr>`;
+                    });
+                });
+        }
+        fetchLogs();
+        setInterval(fetchLogs, 5000);
+    </script>
+
+</body>
+</html>

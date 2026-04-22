@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vulnerability Scanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>🛡️ Mini SOC</h2>
+        <a href="/">📊 Dashboard</a>
+        <a href="/logs">📋 Logs</a>
+        <a href="/alerts">🚨 Alerts</a>
+        <a href="/scanner">🔍 Scanner</a>
+        <a href="/transfer">🔒 Transfer</a>
+    </div>
+
+    <div class="main">
+        <h1>🔍 Web Vulnerability Scanner</h1>
+
+        <div class="scanner-box">
+            <input type="text" id="scan-url" placeholder="Enter URL to scan e.g. http://example.com" />
+            <button onclick="startScan()">Scan Now</button>
+        </div>
+
+        <div class="feed" id="results-box" style="display:none;">
+            <h2>📋 Scan Results</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Payload Used</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody id="scan-results"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function startScan() {
+            const url = document.getElementById('scan-url').value;
+            if (!url) { alert('Please enter a URL!'); return; }
+
+            document.getElementById('scan-results').innerHTML = 
+                '<tr><td colspan="3">Scanning... please wait ⏳</td></tr>';
+            document.getElementById('results-box').style.display = 'block';
+
+            fetch('/api/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById('scan-results');
+                tbody.innerHTML = '';
+                data.results.forEach(r => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${r.type}</td>
+                            <td><code>${r.payload}</code></td>
+                            <td>${r.status}</td>
+                        </tr>`;
+                });
+            });
+        }
+    </script>
+
+</body>
+</html>
